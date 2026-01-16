@@ -62,6 +62,5 @@ Library-Management-System/
 ---
 ## 📸 Preview
 
-> 📌 You can add a screenshot or GIF of your project here:
 ```markdown
 ![Project Preview](screenshot.png)
