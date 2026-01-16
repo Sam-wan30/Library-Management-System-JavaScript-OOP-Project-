@@ -60,7 +60,6 @@ Library-Management-System/
 ```
 
 ---
-## 📸 Preview
 
-```markdown
-![Project Preview](screenshot.png)
+## 📸 Preview
+![Preview](./screenshot.png)
