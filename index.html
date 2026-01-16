@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Library Management System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f5f0e8 0%, #e8e0d5 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Floating background books */
+    .floating-book {
+      position: fixed;
+      opacity: 0.06;
+      color: #1e3a5f;
+      animation: float 6s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .floating-book:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; font-size: 40px; }
+    .floating-book:nth-child(2) { top: 20%; right: 8%; animation-delay: 1s; font-size: 60px; }
+    .floating-book:nth-child(3) { top: 50%; left: 3%; animation-delay: 2s; font-size: 35px; }
+    .floating-book:nth-child(4) { top: 75%; right: 5%; animation-delay: 0.5s; font-size: 50px; }
+    .floating-book:nth-child(5) { top: 85%; left: 10%; animation-delay: 1.5s; font-size: 45px; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-15px) rotate(5deg); }
+    }
+
+    /* Gradient orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+    }
+
+    .orb-1 {
+      width: 300px;
+      height: 300px;
+      background: rgba(217, 164, 65, 0.15);
+      top: 20%;
+      left: -100px;
+    }
+
+    .orb-2 {
+      width: 400px;
+      height: 400px;
+      background: rgba(30, 58, 95, 0.1);
+      bottom: 10%;
+      right: -150px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, #ffffff 0%, #faf8f5 100%);
+      width: 100%;
+      max-width: 460px;
+      border-radius: 20px;
+      box-shadow: 
+        0 4px 20px -4px rgba(30, 58, 95, 0.08),
+        0 8px 40px -8px rgba(30, 58, 95, 0.12),
+        0 25px 60px -15px rgba(30, 58, 95, 0.15);
+      overflow: hidden;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Header section */
+    .header {
+      background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
+      padding: 28px;
+      color: white;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .header-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .header p {
+      font-size: 13px;
+      opacity: 0.7;
+      margin-top: 2px;
+    }
+
+    /* Member card */
+    .member-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 14px;
+    }
+
+    .member-avatar {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #d9a441 0%, #c4943a 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .member-info h4 {
+      font-size: 14px;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .member-info span {
+      font-size: 12px;
+      opacity: 0.7;
+    }
+
+    /* Content section */
+    .content {
+      padding: 24px;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    input {
+      flex: 1;
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 2px solid #e8e0d5;
+      background: rgba(245, 240, 232, 0.5);
+      font-size: 15px;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #d9a441;
+      background: white;
+      box-shadow: 0 0 0 4px rgba(217, 164, 65, 0.15);
+    }
+
+    input::placeholder {
+      color: #9ca3af;
+    }
+
+    button {
+      padding: 14px 24px;
+      border: none;
+      background: linear-gradient(135deg, #d9a441 0%, #c4943a 100%);
+      color: #1e3a5f;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 15px;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(217, 164, 65, 0.3);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(217, 164, 65, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    /* Stats */
+    .stats {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .stat-item {
+      flex: 1;
+      padding: 14px;
+      background: rgba(245, 240, 232, 0.6);
+      border-radius: 14px;
+      text-align: center;
+    }
+
+    .stat-item .number {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: #1e3a5f;
+    }
+
+    .stat-item:nth-child(2) .number {
+      color: #d9a441;
+    }
+
+    .stat-item .label {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+
+    /* Book list section */
+    .list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .list-header h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: #1e3a5f;
+    }
+
+    .list-header span {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    ul {
+      list-style: none;
+      max-height: 280px;
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+
+    ul::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ul::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    ul::-webkit-scrollbar-thumb {
+      background: #d9a441;
+      border-radius: 10px;
+    }
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: white;
+      margin: 8px 0;
+      padding: 14px 16px;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+      position: relative;
+      overflow: hidden;
+    }
+
+    li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 0;
+      background: #d9a441;
+      border-radius: 0 4px 4px 0;
+      transition: height 0.3s ease;
+    }
+
+    li:not(.borrowed):hover {
+      border-color: rgba(217, 164, 65, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(30, 58, 95, 0.08);
+    }
+
+    li:not(.borrowed):hover::before {
+      height: 32px;
+    }
+
+    .book-icon {
+      width: 44px;
+      height: 44px;
+      background: rgba(30, 58, 95, 0.08);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      transition: all 0.3s ease;
+    }
+
+    li:not(.borrowed):hover .book-icon {
+      background: rgba(217, 164, 65, 0.15);
+    }
+
+    .book-info {
+      flex: 1;
+    }
+
+    .book-title {
+      font-weight: 500;
+      color: #1e3a5f;
+      font-size: 15px;
+      transition: color 0.3s ease;
+    }
+
+    .book-status {
+      font-size: 12px;
+      color: #9ca3af;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 2px;
+    }
+
+    .book-status.available {
+      color: #d9a441;
+    }
+
+    .hover-hint {
+      opacity: 0;
+      font-size: 12px;
+      font-weight: 500;
+      color: #d9a441;
+      background: rgba(217, 164, 65, 0.1);
+      padding: 6px 14px;
+      border-radius: 20px;
+      transition: opacity 0.3s ease;
+    }
+
+    li:not(.borrowed):hover .hover-hint {
+      opacity: 1;
+    }
+
+    /* Borrowed state */
+    .borrowed {
+      cursor: not-allowed;
+      background: #f9fafb;
+    }
+
+    .borrowed .book-icon {
+      background: #e5e7eb;
+    }
+
+    .borrowed .book-title {
+      text-decoration: line-through;
+      color: #9ca3af;
+    }
+
+    /* Footer hint */
+    .footer-hint {
+      text-align: center;
+      font-size: 13px;
+      color: #9ca3af;
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .footer-hint .sparkle {
+      animation: pulse 2s ease-in-out infinite;
+      color: #d9a441;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Book add animation */
+    @keyframes bookAdd {
+      0% {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.9);
+      }
+      50% {
+        transform: translateY(5px) scale(1.02);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .book-new {
+      animation: bookAdd 0.5s ease-out forwards;
+    }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #1e3a5f;
+      color: white;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 10px 40px rgba(30, 58, 95, 0.3);
+      z-index: 1000;
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.success {
+      background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
+    }
+
+    .toast.error {
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #9ca3af;
+    }
+
+    .empty-state .icon {
+      font-size: 48px;
+      opacity: 0.3;
+      margin-bottom: 12px;
+    }
+
+    .empty-state p {
+      font-size: 14px;
+    }
+
+    .empty-state small {
+      font-size: 12px;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- Floating background decorations -->
+<div class="floating-book">📚</div>
+<div class="floating-book">📖</div>
+<div class="floating-book">📕</div>
+<div class="floating-book">📗</div>
+<div class="floating-book">📘</div>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<div class="card">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-top">
+      <div class="header-icon">📚</div>
+      <div>
+        <h2>Library Manager</h2>
+        <p>Object-Oriented Design</p>
+      </div>
+    </div>
+    <div class="member-card">
+      <div class="member-avatar">🎓</div>
+      <div class="member-info">
+        <h4>Samiksha</h4>
+        <span>👤 Roll No: 101</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <div class="input-group">
+      <input id="bookTitle" placeholder="Enter book title..." />
+      <button onclick="addBook()">
+        <span>📖</span> Add
+      </button>
+    </div>
+
+    <div class="stats">
+      <div class="stat-item">
+        <div class="number" id="availableCount">0</div>
+        <div class="label">Available</div>
+      </div>
+      <div class="stat-item">
+        <div class="number" id="borrowedCount">0</div>
+        <div class="label">Borrowed</div>
+      </div>
+      <div class="stat-item">
+        <div class="number" id="totalCount">0</div>
+        <div class="label">Total</div>
+      </div>
+    </div>
+
+    <div class="list-header">
+      <h3>Book Collection</h3>
+      <span id="bookCountLabel">0 books</span>
+    </div>
+
+    <ul id="bookList"></ul>
+
+    <p class="footer-hint">
+      <span class="sparkle">✨</span>
+      Click on an available book to borrow it
+    </p>
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* =================== CLASS: Book =================== */
+class Book {
+  constructor(title) {
+    this.id = Math.random().toString(36).substring(2, 9);
+    this.title = title;
+    this.isBorrowed = false;
+  }
+
+  borrow() {
+    this.isBorrowed = true;
+  }
+}
+
+/* =================== CLASS: Member =================== */
+class Member {
+  constructor(name) {
+    this.name = name;
+  }
+
+  borrowBook(book) {
+    if (!book.isBorrowed) {
+      book.borrow();
+      showToast(`${this.name} borrowed "${book.title}"`, 'success');
+      return true;
+    } else {
+      showToast("This book is already borrowed!", 'error');
+      return false;
+    }
+  }
+}
+
+/* =================== INHERITANCE =================== */
+class StudentMember extends Member {
+  constructor(name, rollNo) {
+    super(name);
+    this.rollNo = rollNo;
+  }
+}
+
+/* =================== USING new =================== */
+const student = new StudentMember("Samiksha", 101);
+const books = [
+  (() => { const b = new Book("The Great Gatsby"); return b; })(),
+  (() => { const b = new Book("To Kill a Mockingbird"); return b; })(),
+  (() => { const b = new Book("1984"); b.borrow(); return b; })(),
+];
+
+/* =================== Toast Notification =================== */
+function showToast(message, type = 'success') {
+  const toast = document.getElementById('toast');
+  toast.textContent = (type === 'success' ? '✨ ' : '⚠️ ') + message;
+  toast.className = `toast ${type} show`;
+  
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3000);
+}
+
+/* =================== Update Stats =================== */
+function updateStats() {
+  const available = books.filter(b => !b.isBorrowed).length;
+  const borrowed = books.filter(b => b.isBorrowed).length;
+  
+  document.getElementById('availableCount').textContent = available;
+  document.getElementById('borrowedCount').textContent = borrowed;
+  document.getElementById('totalCount').textContent = books.length;
+  document.getElementById('bookCountLabel').textContent = 
+    `${books.length} ${books.length === 1 ? 'book' : 'books'}`;
+}
+
+/* =================== App Logic =================== */
+let newestBookId = null;
+
+function addBook() {
+  const input = document.getElementById("bookTitle");
+  const title = input.value.trim();
+
+  if (!title) {
+    showToast("Please enter a book title", 'error');
+    input.focus();
+    return;
+  }
+
+  const book = new Book(title);
+  books.unshift(book);
+  newestBookId = book.id;
+
+  input.value = "";
+  displayBooks();
+  showToast(`"${title}" added to library`, 'success');
+  
+  setTimeout(() => { newestBookId = null; }, 600);
+}
+
+function displayBooks() {
+  const list = document.getElementById("bookList");
+  list.innerHTML = "";
+
+  if (books.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">📚</div>
+        <p>No books in the library yet</p>
+        <small>Add your first book above</small>
+      </div>
+    `;
+    updateStats();
+    return;
+  }
+
+  books.forEach(book => {
+    const li = document.createElement("li");
+    
+    if (book.isBorrowed) {
+      li.classList.add("borrowed");
+    }
+    
+    if (book.id === newestBookId) {
+      li.classList.add("book-new");
+    }
+
+    li.innerHTML = `
+      <div class="book-icon">${book.isBorrowed ? '📕' : '📖'}</div>
+      <div class="book-info">
+        <div class="book-title">${book.title}</div>
+        <div class="book-status ${book.isBorrowed ? '' : 'available'}">
+          ${book.isBorrowed ? '📕 Borrowed' : '✨ Available'}
+        </div>
+      </div>
+      ${!book.isBorrowed ? '<span class="hover-hint">Click to borrow</span>' : ''}
+    `;
+
+    if (!book.isBorrowed) {
+      li.onclick = () => {
+        if (student.borrowBook(book)) {
+          displayBooks();
+        }
+      };
+    }
+
+    list.appendChild(li);
+  });
+
+  updateStats();
+}
+
+// Handle Enter key
+document.getElementById("bookTitle").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") addBook();
+});
+
+// Initial display
+displayBooks();
+</script>
+
+</body>
+</html>
